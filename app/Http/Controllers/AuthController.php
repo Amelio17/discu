@@ -16,6 +16,12 @@ class AuthController extends Controller
  
     public function registerPost(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
         $user = new User();
  
         $user->name = $request->name;
@@ -24,7 +30,7 @@ class AuthController extends Controller
  
         $user->save();
  
-        return back()->with('success', 'Register successfully');
+        return back()->with('success', 'Inscription réussie ! Vous pouvez maintenant vous connecter.');
     }
  
     public function login()
@@ -34,22 +40,27 @@ class AuthController extends Controller
  
     public function loginPost(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         $credetials = [
             'email' => $request->email,
             'password' => $request->password,
         ];
  
         if (Auth::attempt($credetials)) {
-            return redirect('/Home')->with('success', 'Login Success');
+            return redirect('/home')->with('success', 'Connexion réussie !');
         }
  
-        return back()->with('error', 'Error Email or Password');
+        return back()->with('error', 'Email ou mot de passe incorrect.');
     }
  
     public function logout()
     {
         Auth::logout();
  
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Déconnexion réussie !');
     }
 }
